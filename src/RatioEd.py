@@ -158,26 +158,31 @@ def change_video_ratio(input_path, output_path, target_ratio):
 def user_input():
     """Handles the user input for video name, output name, and aspect ratio selection."""
     input_video = input(f"{TerminalColors.OKBLUE}SELECT VIDEO TO EDIT (just video name): {TerminalColors.ENDC}")
-    input_path = find_video(input_video)
+    input_path, video_ext = find_video(input_video)
     
     if not input_path:
         print(f"{TerminalColors.FAIL}Video not found!{TerminalColors.ENDC}")
         return
-    
+
     output_video = input(f"{TerminalColors.OKBLUE}SELECT EDITED VIDEO NAME TO SAVE: {TerminalColors.ENDC}")
     user_desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-    output_path = os.path.join(user_desktop, output_video)
+    output_path = os.path.join(user_desktop, f"{output_video}{video_ext}")    # Keep the same extension and save to Desktop
 
     target_ratio = select_aspect_ratio()
+    time.sleep(0.5)
     clear_terminal()
     change_video_ratio(input_path, output_path, target_ratio)
 
 def find_video(video_name):
-    """Tries to locate the video by searching the current directory."""
+    """Finds the video file by searching for common extensions."""
+    common_extensions = [".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv"]
+    
     for root, dirs, files in os.walk(os.getcwd()):
-        if video_name in files:
-            return os.path.join(root, video_name)
-    return None
+        for ext in common_extensions:
+            if f"{video_name}{ext}" in files:
+                return os.path.join(root, f"{video_name}{ext}"), ext  # Return full path and extension
+    return None, None  # Video not found
+
 
 def select_aspect_ratio():
     """Displays the aspect ratio options and allows the user to select one."""
